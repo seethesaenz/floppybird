@@ -6,11 +6,14 @@ import pygame
 class Background:
     """background class to simulate movement"""
 
-    def __init__(self, screen, screen_width):
+    def __init__(self, screen, screen_width, game_speed):
         """Initialize attributes for the background"""
 
+        # general attributes
         self.screen = screen
         self.screen_width = screen_width
+
+        # layer image stuff
         layer_1_img_path = str(pathlib.Path('images/bg_layer_1.png').resolve())
         layer_2_img_path = str(pathlib.Path('images/bg_layer_2.png').resolve())
         layer_3_img_path = str(pathlib.Path('images/bg_layer_3.png').resolve())
@@ -18,16 +21,14 @@ class Background:
         self.layer_2_img = pygame.image.load(layer_2_img_path)
         self.layer_3_img = pygame.image.load(layer_3_img_path)
 
+        # layer rect stuff
         self.layer_1_rect = self.layer_1_img.get_rect()
-
         self.layer_2_rect_a = self.layer_2_img.get_rect()
         self.layer_2_rect_b = self.layer_2_rect_a.copy()
         self.layer_2_rect_b.left += self.layer_2_rect_b.width
-
         self.layer_3_rect_a = self.layer_3_img.get_rect()
         self.layer_3_rect_b = self.layer_3_rect_a.copy()
         self.layer_3_rect_b.left += self.layer_3_rect_b.width
-
         self.layer_2_rects = [
             self.layer_2_rect_a,
             self.layer_2_rect_b,
@@ -36,22 +37,32 @@ class Background:
             self.layer_3_rect_a,
             self.layer_3_rect_b,
         ]
-        self.clouds = []
+
+        # layer attributes
+        self.layer_2_speed = game_speed // 4
+        self.layer_3_speed = game_speed
+        self.cloud_speed = game_speed // 2
+
+        # cloud attributes
         self.cloud_amount = 12
+        self.clouds = [Cloud(self.screen_width) for _ in range(self.cloud_amount)]
 
-        self.layer_2_speed = 2
-        self.layer_3_speed = 8
-        self.cloud_speed = 4
+    def update(self, delta_time):
+        self.update_layers(delta_time)
+        self.update_clouds(delta_time)
 
-    def update(self):
-        self.update_layers()
-        self.update_clouds()
-
-    def update_layers(self):
+    def update_layers(self, delta_time):
+        # move layers
         for rect in self.layer_2_rects:
+            # tmp = self.layer_2_speed * delta_time * -1
+            # print(tmp)
+            # rect.left += tmp
             rect.left -= self.layer_2_speed
         for rect in self.layer_3_rects:
+            # rect.left += int(self.layer_3_speed * delta_time * -1)
             rect.left -= self.layer_3_speed
+
+        # reposition layer rects that have gone off screen
         if self.layer_2_rect_a.left + self.layer_2_rect_a.width < 0:
             self.layer_2_rect_a.left = self.layer_2_rect_b.left + self.layer_2_rect_b.width
         if self.layer_2_rect_b.left + self.layer_2_rect_b.width < 0:
@@ -61,26 +72,29 @@ class Background:
         if self.layer_3_rect_b.left + self.layer_3_rect_b.width < 0:
             self.layer_3_rect_b.left = self.layer_3_rect_a.left + self.layer_3_rect_a.width
 
-    def update_clouds(self):
-        if len(self.clouds) < self.cloud_amount:
-            self.clouds.append(Cloud(self.screen_width))
+    def update_clouds(self, delta_time):
+        # move clouds
+        for cloud in self.clouds:
+            # cloud.rect.left += int(self.cloud_speed * delta_time * -1)
+            cloud.rect.left -= self.cloud_speed
+
+        # reposition clouds that have gone off screen
         for cloud in self.clouds:
             if cloud.rect.left < -cloud.rect.width:
                 cloud.rect.left = random.randint(self.screen_width, self.screen_width * 2)
                 cloud.image = cloud.get_image()
-        for cloud in self.clouds:
-            cloud.rect.left -= self.cloud_speed
 
     def blitme(self):
         """Draw the background onto the screen"""
 
-        self.update()
+        # draw all the layers
         self.screen.blit(self.layer_1_img, self.layer_1_rect)
         self.screen.blit(self.layer_2_img, self.layer_2_rect_a)
         self.screen.blit(self.layer_2_img, self.layer_2_rect_b)
         self.screen.blit(self.layer_3_img, self.layer_3_rect_a)
         self.screen.blit(self.layer_3_img, self.layer_3_rect_b)
 
+        # draw all the clouds
         for cloud in self.clouds:
             self.screen.blit(cloud.image, cloud.rect)
 

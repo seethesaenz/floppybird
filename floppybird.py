@@ -16,21 +16,28 @@ class FloppyBird:
         self.screen_height = 700
         pygame.display.set_caption('FloppyBird')
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+        self.delta_time = 0
+        self.fps_limit = 60
+        self.game_speed = 8
 
         self.run = True
         self.jump = False
-        self.debug = False
+        self.debug = False 
+        self.anglebool = True
 
         self.pipegroup = pygame.sprite.Group()
 
         self.clock = pygame.time.Clock()
         self.bird = Bird(self.screen)
-        self.background = Background(self.screen, self.screen_width)
+        self.background = Background(self.screen, self.screen_width, self.game_speed)
         self.font = pygame.font.Font('freesansbold.ttf', 32)
         self.points = 0
         self.score = self.font.render(str(self.points), True, (0, 0, 0))
         self.score_rect = self.score.get_rect()
         self.score_rect.center = (self.screen_width//2, 50)
+        self.jump_angle = 90
+        self.fall_angle = -90
+        
 
         self.bird_grav = 4
         self.bird_max_grav = 8
@@ -40,22 +47,33 @@ class FloppyBird:
 
     def flopdabird(self):
         """Function which is responsible for running the game"""
+        self.clock.tick(self.fps_limit)
         while self.run:
+            self.update()
             self.draw()
             self.pipe_controls()
             self.eventmanager()
+            self.anglefloppyup()
             self.movement()
-            # self.rotatefloppy()
             self.pointcalc()
             if not self.debug:
                 self.collision()
             pygame.display.flip()
-            self.clock.tick(60)
+            self.delta_time = self.clock.tick(self.fps_limit) / 1000.0
+            # print(self.delta_time)
         pygame.quit()
 
-    # def rotatefloppy(self):
-    #     self.bird.image = pygame.transform.rotate(self.bird.image, 1)
-    #     self.bird.image = pygame.transform.rotate(self.bird.image, -1)
+    def update(self):
+        self.background.update(self.delta_time)
+    
+    def anglefloppyup(self):
+        """Function defines angle at which the bird is rotated."""
+        if self.bird_grav == 8 and self.anglebool:
+            self.anglebool = False
+            self.bird.image = pygame.transform.rotate(self.bird.image, self.fall_angle)
+        if self.bird_grav == -self.bird_jump_height and not self.anglebool:
+            self.anglebool = True
+            self.bird.image = pygame.transform.rotate(self.bird.image, self.jump_angle)
 
     def pointcalc(self):
         if self.pipegroup.sprites()[0].rect.left == self.bird.rect.left:
@@ -96,7 +114,6 @@ class FloppyBird:
 
     def eventmanager(self):
         """handles events"""
-
         space_pressed = False
 
         for event in pygame.event.get():
@@ -105,6 +122,7 @@ class FloppyBird:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     space_pressed = True
+                
 
         if space_pressed:
             self.bird_grav = -self.bird_jump_height
@@ -132,10 +150,9 @@ class FloppyBird:
         """create, remove, and move the pipes"""
 
         pipe_width = 85
-        pipe_speed = 8  # bird speed basically
 
         for pipe in self.pipegroup.sprites():
-            pipe.rect.left -= pipe_speed
+            pipe.rect.left -= self.game_speed
 
         for pipe in self.pipegroup.sprites():
             if pipe.rect.left <= -pipe_width:

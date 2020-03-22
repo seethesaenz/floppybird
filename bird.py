@@ -15,6 +15,7 @@ class Bird(pygame.sprite.Sprite):
         floppy_img_path = str(pathlib.Path('images/floppy.png').expanduser().resolve())
         self.image = pygame.image.load(floppy_img_path)
         self.rect = self.image.get_rect().move(100, 100)
+        self.image = pygame.transform.rotate(self.image, 45)
         self.screen_rect = self.screen.get_rect()
 
     def blitme(self):
