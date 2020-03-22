@@ -2,7 +2,7 @@ import random
 import pygame
 from bird import Bird
 from pipes import Pipes
-from background import Background, Cloud
+from background import Background
 
 
 class FloppyBird:
@@ -19,19 +19,22 @@ class FloppyBird:
 
         self.run = True
         self.jump = False
+        self.debug = False
 
         self.pipegroup = pygame.sprite.Group()
 
         self.clock = pygame.time.Clock()
         self.bird = Bird(self.screen)
-        self.background = Background(self.screen)
+        self.background = Background(self.screen, self.screen_width)
+        self.font = pygame.font.Font('freesansbold.ttf', 32)
+        self.points = 0
+        self.score = self.font.render(str(self.points), True, (0, 0, 0))
+        self.score_rect = self.score.get_rect()
+        self.score_rect.center = (self.screen_width//2, 50)
 
         self.bird_grav = 4
         self.bird_max_grav = 8
         self.bird_jump_height = 15
-
-        self.debug = True
-
         # pygame.display.set_icon(pygame.image.load())
         self.flopdabird()
 
@@ -42,11 +45,22 @@ class FloppyBird:
             self.pipe_controls()
             self.eventmanager()
             self.movement()
+            # self.rotatefloppy()
+            self.pointcalc()
             if not self.debug:
                 self.collision()
             pygame.display.flip()
             self.clock.tick(60)
         pygame.quit()
+
+    # def rotatefloppy(self):
+    #     self.bird.image = pygame.transform.rotate(self.bird.image, 1)
+    #     self.bird.image = pygame.transform.rotate(self.bird.image, -1)
+
+    def pointcalc(self):
+        if self.pipegroup.sprites()[0].rect.left == self.bird.rect.left:
+            self.points +=1
+            self.score = self.font.render(str(self.points), True, (0, 0, 0))
 
     def collision(self):
         if pygame.sprite.spritecollide(self.bird, self.pipegroup, 0):
@@ -77,6 +91,7 @@ class FloppyBird:
         self.bird.blitme()
         for pipe in self.pipegroup.sprites():
             pipe.draw()
+        self.screen.blit(self.score, self.score_rect)
 
 
     def eventmanager(self):
@@ -126,7 +141,22 @@ class FloppyBird:
             if pipe.rect.left <= -pipe_width:
                 self.pipegroup.remove(pipe)
 
-        if not self.pipegroup:
+        if len(self.pipegroup.sprites()) == 2:
+            if self.pipegroup.sprites()[0].rect.left <= self.screen_width // 2:
+                # for adjusting pipes
+                space = random.randint(200, 300)
+                top_height = random.randint(50, self.screen_height - space)
+
+                # no need to modify below
+                color = self.getrandomcolor()
+                x = self.screen_width
+                bottom_y = top_height + space
+                bottom_height = self.screen_height - top_height - space
+                top_rect = pygame.Rect(x, 0, pipe_width, top_height)
+                bottom_rect = pygame.Rect(x, bottom_y, pipe_width, bottom_height)
+                self.pipegroup.add(Pipes(self.screen, top_rect, color))
+                self.pipegroup.add(Pipes(self.screen, bottom_rect, color))
+        elif not self.pipegroup.sprites():
             # for adjusting pipes
             space = random.randint(200, 300)
             top_height = random.randint(50, self.screen_height - space)

@@ -6,10 +6,11 @@ import pygame
 class Background:
     """background class to simulate movement"""
 
-    def __init__(self, screen):
+    def __init__(self, screen, screen_width):
         """Initialize attributes for the background"""
 
         self.screen = screen
+        self.screen_width = screen_width
         layer_1_img_path = str(pathlib.Path('images/bg_layer_1.png').resolve())
         layer_2_img_path = str(pathlib.Path('images/bg_layer_2.png').resolve())
         layer_3_img_path = str(pathlib.Path('images/bg_layer_3.png').resolve())
@@ -36,7 +37,7 @@ class Background:
             self.layer_3_rect_b,
         ]
         self.clouds = []
-        self.cloud_amount = 6
+        self.cloud_amount = 12
 
         self.layer_2_speed = 2
         self.layer_3_speed = 8
@@ -60,18 +61,15 @@ class Background:
         if self.layer_3_rect_b.left + self.layer_3_rect_b.width < 0:
             self.layer_3_rect_b.left = self.layer_3_rect_a.left + self.layer_3_rect_a.width
 
-
-
     def update_clouds(self):
         if len(self.clouds) < self.cloud_amount:
-            self.clouds.append(Cloud())
+            self.clouds.append(Cloud(self.screen_width))
         for cloud in self.clouds:
             if cloud.rect.left < -cloud.rect.width:
-                cloud.rect.left = random.randint(800, 1800)
+                cloud.rect.left = random.randint(self.screen_width, self.screen_width * 2)
                 cloud.image = cloud.get_image()
         for cloud in self.clouds:
             cloud.rect.left -= self.cloud_speed
-
 
     def blitme(self):
         """Draw the background onto the screen"""
@@ -92,11 +90,12 @@ class Cloud(pygame.sprite.Sprite):
 
     cloud_paths = [str(pathlib.Path(f'images/cloud{i}.png').resolve()) for i in range(1, 9)]
 
-    def __init__(self):
+    def __init__(self, screen_width):
         """constructor"""
 
         pygame.sprite.Sprite.__init__(self)
-        cloud_x = random.randint(800, 1800)
+        self.screen_width = screen_width
+        cloud_x = random.randint(self.screen_width, self.screen_width * 2)
         cloud_y = random.randint(20, 160)
         self.image = self.get_image()
         self.rect = self.image.get_rect().move(cloud_x, cloud_y)
