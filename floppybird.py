@@ -24,19 +24,24 @@ class FloppyBird:
         self.jump = False
         self.debug = False 
         self.anglebool = True
+        # intro BS
+        self.intro = True
+        self.button_height, self.button_width = 50, 250
+        self.floppyfont = pygame.font.Font('freesansbold.ttf', 128)
+        self.title = self.floppyfont.render('Floppy Bird', True, (255, 255, 0))
+        self.title_rect = self.title.get_rect()
+        self.title_rect.center = (self.screen_width//2, 150)
 
         self.pipegroup = pygame.sprite.Group()
 
         self.clock = pygame.time.Clock()
         self.bird = Bird(self.screen)
         self.background = Background(self.screen, self.screen_width, self.game_speed)
-        self.font = pygame.font.Font('freesansbold.ttf', 32)
+        self.point_font = pygame.font.Font('freesansbold.ttf', 32)
         self.points = 0
-        self.score = self.font.render(str(self.points), True, (0, 0, 0))
+        self.score = self.point_font.render(str(self.points), True, (0, 0, 0))
         self.score_rect = self.score.get_rect()
         self.score_rect.center = (self.screen_width//2, 50)
-        self.jump_angle = 90
-        self.fall_angle = -90
         
 
         self.bird_grav = 4
@@ -48,12 +53,16 @@ class FloppyBird:
     def flopdabird(self):
         """Function which is responsible for running the game"""
         self.clock.tick(self.fps_limit)
+        while self.intro:
+            self.screen.fill((0, 0, 0))
+            self.draw_introBS()
+            pygame.display.flip()
+            self.eventmanager()
         while self.run:
             self.update()
             self.draw()
             self.pipe_controls()
             self.eventmanager()
-            self.anglefloppyup()
             self.movement()
             self.pointcalc()
             if not self.debug:
@@ -63,22 +72,46 @@ class FloppyBird:
             # print(self.delta_time)
         pygame.quit()
 
+    def draw_introBS(self):
+        pygame.draw.rect(self.screen, (255, 0, 0), ((self.screen_width//2)-(self.button_width//2), (self.screen_height//2)-(self.button_height//2), self.button_width, self.button_height))
+        self.screen.blit(self.title, self.title_rect)
+    
+    def eventmanager(self):
+        """handles events"""
+        space_pressed = False
+        if not self.intro:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.run = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        space_pressed = True
+                    
+            if space_pressed:
+                self.bird_grav = -self.bird_jump_height
+        elif self.intro:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.run = False
+                    self.intro = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q:
+                        self.run = False
+                        self.intro = False
+                # if event.type == pygame.MOUSEBUTTONUP:
+                #     if event.button == 1:
+                #         if 
+        if space_pressed:
+            self.bird_grav = -self.bird_jump_height
+
     def update(self):
         self.background.update(self.delta_time)
     
-    def anglefloppyup(self):
-        """Function defines angle at which the bird is rotated."""
-        if self.bird_grav == 8 and self.anglebool:
-            self.anglebool = False
-            self.bird.image = pygame.transform.rotate(self.bird.image, self.fall_angle)
-        if self.bird_grav == -self.bird_jump_height and not self.anglebool:
-            self.anglebool = True
-            self.bird.image = pygame.transform.rotate(self.bird.image, self.jump_angle)
 
     def pointcalc(self):
         if self.pipegroup.sprites()[0].rect.left == self.bird.rect.left:
             self.points +=1
-            self.score = self.font.render(str(self.points), True, (0, 0, 0))
+            self.score = self.point_font.render(str(self.points), True, (0, 0, 0))
 
     def collision(self):
         if pygame.sprite.spritecollide(self.bird, self.pipegroup, 0):
@@ -106,26 +139,17 @@ class FloppyBird:
         """handles drawing"""
 
         self.background.blitme()
-        self.bird.blitme()
+
+        if self.bird_grav < 0:
+            self.screen.blit(self.bird.imageup, self.bird.rect)
+        elif self.bird_grav == 0:
+            self.screen.blit(self.bird.image, self.bird.rect)
+        elif self.bird_grav > 0:
+            self.screen.blit(self.bird.imagedown, self.bird.rect)
+        
         for pipe in self.pipegroup.sprites():
             pipe.draw()
         self.screen.blit(self.score, self.score_rect)
-
-
-    def eventmanager(self):
-        """handles events"""
-        space_pressed = False
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.run = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    space_pressed = True
-                
-
-        if space_pressed:
-            self.bird_grav = -self.bird_jump_height
 
     def getrandomcolor(self):
         """pick a color at random from the colors list"""

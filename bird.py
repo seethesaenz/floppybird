@@ -12,13 +12,13 @@ class Bird(pygame.sprite.Sprite):
         self.screen = screen
 
         # Get background image and rect of screen and image
-        floppy_img_path = str(pathlib.Path('images/floppy.png').expanduser().resolve())
-        self.image = pygame.image.load(floppy_img_path)
+        floppy1_img_path = str(pathlib.Path('images/floppy.png').expanduser().resolve())
+        self.image = pygame.image.load(floppy1_img_path)
+        floppy2_img_path = str(pathlib.Path('images/floppyup.png').expanduser().resolve())
+        self.imageup = pygame.image.load(floppy2_img_path)
+        floppy3_img_path = str(pathlib.Path('images/floppydown.png').expanduser().resolve())
+        self.imagedown = pygame.image.load(floppy_3img_path)
         self.rect = self.image.get_rect().move(100, 100)
-        self.image = pygame.transform.rotate(self.image, 45)
         self.screen_rect = self.screen.get_rect()
 
-    def blitme(self):
-        """Draw the background onto the screen"""
-
-        self.screen.blit(self.image, self.rect)
+        
