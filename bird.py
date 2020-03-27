@@ -17,7 +17,7 @@ class Bird(pygame.sprite.Sprite):
         floppy2_img_path = str(pathlib.Path('images/floppyup.png').expanduser().resolve())
         self.imageup = pygame.image.load(floppy2_img_path)
         floppy3_img_path = str(pathlib.Path('images/floppydown.png').expanduser().resolve())
-        self.imagedown = pygame.image.load(floppy_3img_path)
+        self.imagedown = pygame.image.load(floppy3_img_path)
         self.rect = self.image.get_rect().move(100, 100)
         self.screen_rect = self.screen.get_rect()
 

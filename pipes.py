@@ -1,5 +1,5 @@
 import pygame
-
+import pathlib
 
 class Pipes(pygame.sprite.Sprite):
     
@@ -7,6 +7,8 @@ class Pipes(pygame.sprite.Sprite):
         """Initialize attributes of the pipes"""
 
         pygame.sprite.Sprite.__init__(self)
+        # floppy1_img_path = str(pathlib.Path('images/pipe.png').expanduser().resolve())
+        # self.image = pygame.image.load()
         self.screen = screen
         self.rect = rect
         self.color = color

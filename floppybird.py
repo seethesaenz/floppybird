@@ -22,10 +22,10 @@ class FloppyBird:
 
         self.run = True
         self.jump = False
-        self.debug = False 
+        self.debug = True 
         self.anglebool = True
         # intro BS
-        self.intro = True
+        self.intro = False
         self.button_height, self.button_width = 50, 250
         self.floppyfont = pygame.font.Font('freesansbold.ttf', 128)
         self.title = self.floppyfont.render('Floppy Bird', True, (255, 255, 0))
@@ -85,8 +85,7 @@ class FloppyBird:
                     self.run = False
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
-                        space_pressed = True
-                    
+                        space_pressed = True      
             if space_pressed:
                 self.bird_grav = -self.bird_jump_height
         elif self.intro:

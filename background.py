@@ -82,7 +82,7 @@ class Background:
         for cloud in self.clouds:
             if cloud.rect.left < -cloud.rect.width:
                 cloud.rect.left = random.randint(self.screen_width, self.screen_width * 2)
-                cloud.image = cloud.get_image()
+                cloud.image = cloud.cloud_imgs[random.randint(0, 7)]
 
     def blitme(self):
         """Draw the background onto the screen"""
@@ -103,6 +103,7 @@ class Cloud(pygame.sprite.Sprite):
     """sprite class for clouds, should it be a sprite?"""
 
     cloud_paths = [str(pathlib.Path(f'images/cloud{i}.png').resolve()) for i in range(1, 9)]
+    cloud_imgs = [pygame.image.load(path) for path in cloud_paths]
 
     def __init__(self, screen_width):
         """constructor"""
@@ -111,17 +112,5 @@ class Cloud(pygame.sprite.Sprite):
         self.screen_width = screen_width
         cloud_x = random.randint(self.screen_width, self.screen_width * 2)
         cloud_y = random.randint(20, 160)
-        self.image = self.get_image()
+        self.image = self.cloud_imgs[random.randint(0, 7)]
         self.rect = self.image.get_rect().move(cloud_x, cloud_y)
-
-    # make cache a class var
-    def get_image(self, cache={}):
-        """method for getting random cloud image"""
-
-        cloud_type = random.randint(0, 7)
-        cloud_path = self.cloud_paths[cloud_type]
-        if cloud_path in cache:
-            return cache[cloud_path]
-        image = pygame.image.load(cloud_path)
-        cache.update({cloud_path: image})
-        return image
