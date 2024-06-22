@@ -14,7 +14,6 @@ Floppy Bird is a fun and challenging clone of the popular Flappy Bird game. This
   - [Technologies Used](#technologies-used)
   - [Contributing](#contributing)
   - [License](#license)
-  - [Contact](#contact)
 
 ## Features
 
@@ -76,8 +75,3 @@ Contributions are what make the open source community such an amazing place to b
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
-## Contact
-
-Jackson Saenz - [saenzjack1@icloud.com](mailto:saenzjack1@icloud.com)
-
-Project Link: [https://github.com/seethesaenz/floppybird](https://github.com/seethesaenz/floppybird)
